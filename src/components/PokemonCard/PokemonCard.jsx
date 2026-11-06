@@ -1,3 +1,5 @@
+import './PokemonCard.css'
+
 export default function PokemonCard({ number, name, types }) {
   return (
     <article className="pokemon-card">

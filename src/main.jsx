@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+import App from './components/App/App.jsx'
 import './styles/global.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
