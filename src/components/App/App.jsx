@@ -32,10 +32,20 @@ async function fetchPokemon(signal) {
       pokemon(where: {is_default: {_eq: true}}, order_by: {id: asc}) {
         id
         name
-        pokemonspecy { generation_id }
+        pokemonspecy {
+          id
+          generation_id
+          evolution_chain_id
+          order
+        }
         pokemontypes(order_by: {slot: asc}) {
           type { name }
         }
+      }
+      megaPokemon: pokemon(where: {pokemonforms: {is_mega: {_eq: true}}}, order_by: {id: asc}) {
+        id
+        name
+        pokemonspecy { id }
       }
     }
   `
@@ -56,11 +66,28 @@ async function fetchPokemon(signal) {
     throw new Error('A PokéAPI não retornou a lista de Pokémon.')
   }
 
+  const megaFormsBySpecies = new Map()
+  for (const { id, name, pokemonspecy } of data.megaPokemon ?? []) {
+    const forms = megaFormsBySpecies.get(pokemonspecy.id) ?? []
+    const suffix = name.split('-mega')[1]?.replaceAll('-', ' ').trim().toUpperCase()
+    forms.push({
+      id,
+      label: suffix ? `Mega ${suffix}` : 'Mega',
+      imageUrl: `${artworkUrl}/${id}.png`,
+      shinyImageUrl: `${artworkUrl}/shiny/${id}.png`,
+    })
+    megaFormsBySpecies.set(pokemonspecy.id, forms)
+  }
+
   return data.pokemon.map(({ id, name, pokemonspecy, pokemontypes }) => ({
     number: String(id).padStart(3, '0'),
     name: name.charAt(0).toUpperCase() + name.slice(1),
     generation: String(pokemonspecy.generation_id),
+    evolutionChainId: pokemonspecy.evolution_chain_id,
+    speciesOrder: pokemonspecy.order,
     imageUrl: `${artworkUrl}/${id}.png`,
+    shinyImageUrl: `${artworkUrl}/shiny/${id}.png`,
+    megaForms: megaFormsBySpecies.get(pokemonspecy.id) ?? [],
     types: pokemontypes.map(({ type }) => typeLabels[type.name] ?? type.name),
   }))
 }
@@ -70,6 +97,8 @@ export default function App() {
   const [hasError, setHasError] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const [selectedPokemon, setSelectedPokemon] = useState(null)
+  const [showShiny, setShowShiny] = useState(false)
+  const [megaFormId, setMegaFormId] = useState(null)
   const [filters, setFilters] = useState({ search: '', generation: '', type: '' })
 
   useEffect(() => {
@@ -95,6 +124,11 @@ export default function App() {
     setAttempt((previous) => previous + 1)
   }
 
+  function selectPokemon(entry) {
+    setSelectedPokemon(entry)
+    setMegaFormId(null)
+  }
+
   const search = filters.search.trim().toLowerCase()
   const number = search.replace(/^#/, '')
   const visiblePokemon = pokemon?.filter((entry) => {
@@ -112,13 +146,15 @@ export default function App() {
   const selectedIndex = visiblePokemon?.findIndex((entry) => entry.number === selectedPokemon?.number) ?? -1
   const previousPokemon = visiblePokemon?.[selectedIndex - 1]
   const nextPokemon = selectedIndex >= 0 ? visiblePokemon[selectedIndex + 1] : undefined
+  const megaForm = selectedPokemon?.megaForms.find((form) => form.id === megaFormId)
+  const displayedForm = megaForm ?? selectedPokemon
+  const evolutionFamily = selectedPokemon?.evolutionChainId == null
+    ? []
+    : pokemon.filter((entry) => entry.evolutionChainId === selectedPokemon.evolutionChainId)
+      .sort((first, second) => first.speciesOrder - second.speciesOrder)
 
   return (
     <main className="pokedex">
-      <header className="pokedex-header">
-        <h1>Pokédex</h1>
-        <p>Explore Pokémon por nome, região ou tipo.</p>
-      </header>
       {hasError ? (
         <div>
           <p role="alert">Não foi possível carregar os Pokémon.</p>
@@ -128,12 +164,14 @@ export default function App() {
         <p role="status">Carregando Pokémon…</p>
       ) : (
         <>
-          <PokemonFilters
-            filters={filters}
-            onChange={setFilters}
-            generations={generations}
-            types={types}
-          />
+          <div className="pokedex-toolbar">
+            <PokemonFilters
+              filters={filters}
+              onChange={setFilters}
+              generations={generations}
+              types={types}
+            />
+          </div>
           <div className="pokemon-layout">
             <aside className="pokemon-details" aria-label="Pokémon selecionado" aria-live="polite">
               {selectedPokemon ? (
@@ -143,33 +181,77 @@ export default function App() {
                       type="button"
                       aria-label="Pokémon anterior"
                       disabled={!previousPokemon}
-                      onClick={() => setSelectedPokemon(previousPokemon)}
+                      onClick={() => selectPokemon(previousPokemon)}
                     >
                       <span aria-hidden="true">‹</span>
                     </button>
                     <img
                       className="pokemon-details-image"
-                      src={selectedPokemon.imageUrl}
-                      alt=""
-                      width="240"
-                      height="240"
+                      src={showShiny ? displayedForm.shinyImageUrl : displayedForm.imageUrl}
+                      alt={showShiny ? `${selectedPokemon.name} na forma shiny` : ''}
+                      onError={showShiny ? () => setShowShiny(false) : undefined}
+                      width="400"
+                      height="400"
                     />
                     <button
                       type="button"
                       aria-label="Próximo Pokémon"
                       disabled={!nextPokemon}
-                      onClick={() => setSelectedPokemon(nextPokemon)}
+                      onClick={() => selectPokemon(nextPokemon)}
                     >
                       <span aria-hidden="true">›</span>
                     </button>
                   </div>
-                  <h2>{selectedPokemon.name}</h2>
+                  {selectedPokemon.megaForms.length > 0 && (
+                    <select
+                      className="pokemon-form-select"
+                      aria-label="Forma do Pokémon"
+                      value={megaFormId ?? ''}
+                      onChange={(event) => setMegaFormId(Number(event.target.value) || null)}
+                    >
+                      <option value="">Forma normal</option>
+                      {selectedPokemon.megaForms.map((form) => (
+                        <option key={form.id} value={form.id}>{form.label}</option>
+                      ))}
+                    </select>
+                  )}
+                  <div className="pokemon-details-title">
+                    <h2>{selectedPokemon.name}</h2>
+                    <button
+                      className="pokemon-shiny-toggle"
+                      type="button"
+                      aria-label="Forma shiny"
+                      aria-pressed={showShiny}
+                      title="Alternar forma shiny"
+                      onClick={() => setShowShiny((current) => !current)}
+                    >
+                      <span aria-hidden="true">✦</span>
+                    </button>
+                  </div>
+                  {evolutionFamily.length > 1 && (
+                    <ul className="pokemon-evolutions" aria-label="Linha evolutiva">
+                      {evolutionFamily.map((entry) => (
+                        <li key={entry.number}>
+                          <button
+                            type="button"
+                            aria-label={entry.name}
+                            aria-pressed={entry.number === selectedPokemon.number}
+                            title={entry.name}
+                            onClick={() => selectPokemon(entry)}
+                          >
+                            <img src={entry.imageUrl} alt="" width="48" height="48" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </>
               ) : (
                 <p>Selecione um Pokémon para exibi-lo aqui.</p>
               )}
             </aside>
             <section className="pokemon-results" aria-label="Catálogo">
+              <h1>Pokédex</h1>
               <p className="pokemon-results-count">{visiblePokemon.length} Pokémon</p>
               {visiblePokemon.length === 0 ? (
                 <p role="status">Nenhum Pokémon encontrado.</p>
@@ -180,7 +262,7 @@ export default function App() {
                       key={entry.number}
                       {...entry}
                       selected={selectedPokemon?.number === entry.number}
-                      onSelect={() => setSelectedPokemon(entry)}
+                      onSelect={() => selectPokemon(entry)}
                     />
                   ))}
                 </div>
