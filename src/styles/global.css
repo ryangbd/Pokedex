@@ -1,16 +1,17 @@
 :root {
   color-scheme: dark;
-  --surface: #181c29;
-  --border: #353b50;
-  --muted: #adb6cc;
-  --accent: #ff7b83;
+  --surface: #171d2b;
+  --border: #30394e;
+  --muted: #aab6cb;
+  --accent: #ffcc68;
 }
 
 body {
   margin: 0;
   color: #f1f5f9;
-  background: #10131e;
-  font-family: system-ui, sans-serif;
+  background: radial-gradient(ellipse at 80% -15%, #283047 0, #10131e 55%);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  min-height: 100vh;
 }
 
 :focus-visible {

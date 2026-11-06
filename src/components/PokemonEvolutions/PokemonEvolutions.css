@@ -1,0 +1,31 @@
+.pokemon-evolutions {
+  grid-area: evolutions;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pokemon-evolutions button {
+  display: grid;
+  place-items: center;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.pokemon-evolutions button:hover,
+.pokemon-evolutions button[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+
+.pokemon-evolutions img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}

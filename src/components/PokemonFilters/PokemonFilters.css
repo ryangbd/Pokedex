@@ -3,7 +3,8 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem 1rem;
   padding: 1rem;
-  background: var(--surface);
+  background: #171d2bed;
+  backdrop-filter: blur(16px);
 }
 
 .pokemon-filters label {
@@ -26,8 +27,8 @@
   min-height: 2.75rem;
   box-sizing: border-box;
   border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: #10131e;
+  border-radius: 0.75rem;
+  background: #111623;
   color: #f1f5f9;
   font: inherit;
 }

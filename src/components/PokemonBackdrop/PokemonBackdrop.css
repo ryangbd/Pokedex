@@ -1,0 +1,12 @@
+.pokemon-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    transparent 24%,
+    color-mix(in srgb, var(--pokemon-type-color) 12%, transparent) 56%,
+    color-mix(in srgb, var(--pokemon-type-color) 50%, transparent)
+  );
+}

@@ -1,0 +1,74 @@
+.pokemon-layout,
+.pokedex-toolbar .pokemon-filters,
+.pokemon-view-switch {
+  box-sizing: border-box;
+  max-width: 75rem;
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.pokedex-toolbar {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.pokemon-layout {
+  max-width: none;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  width: 100%;
+  min-height: 0;
+  padding-block: clamp(0.5rem, 2dvh, 1rem);
+}
+
+.pokemon-view-switch {
+  display: flex;
+  gap: 0.5rem;
+  padding-block: 0.5rem;
+}
+
+.pokemon-view-switch button {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pokemon-view-switch button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pokemon-view-switch button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (width >= 54rem) and (height >= 30rem) {
+  .pokedex-toolbar .pokemon-filters {
+    margin-inline: 0 auto;
+  }
+
+  .pokemon-layout {
+    --pokemon-list-width: clamp(20rem, 37vw, 36rem);
+    grid-template-columns: var(--pokemon-list-width) minmax(0, 1fr);
+  }
+
+  .pokemon-view-switch {
+    display: none;
+  }
+}
+
+@media (width < 54rem), (height < 30rem) {
+  .pokemon-layout[data-view="list"] > .pokemon-details,
+  .pokemon-layout[data-view="details"] > .pokemon-results,
+  .pokedex-toolbar[data-view="details"] > .pokedex-filter-controls {
+    display: none;
+  }
+}

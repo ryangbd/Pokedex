@@ -1,9 +1,11 @@
 .pokemon-card {
   position: relative;
-  padding: 0.85rem;
+  padding: 0.9rem;
   border: 1px solid var(--border);
   border-radius: 1rem;
-  background: var(--surface);
+  background: linear-gradient(145deg, #1c2333, #151a27);
+  box-shadow: 0 8px 24px #0002;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
 .pokemon-card-select {
@@ -17,7 +19,8 @@
 }
 
 .pokemon-card-select:hover {
-  box-shadow: inset 0 0 0 1px var(--muted);
+  box-shadow: inset 0 0 0 1px var(--accent), 0 12px 28px #0004;
+  transform: translateY(-3px);
 }
 
 .pokemon-card-select[aria-pressed="true"] {
@@ -59,6 +62,6 @@
 .pokemon-types li {
   padding: 0.25rem 0.65rem;
   border-radius: 999px;
-  background: #2a3043;
+  background: #30394e;
   font-size: 0.75rem;
 }
