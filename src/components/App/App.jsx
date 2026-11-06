@@ -69,6 +69,7 @@ export default function App() {
   const [pokemon, setPokemon] = useState(null)
   const [hasError, setHasError] = useState(false)
   const [attempt, setAttempt] = useState(0)
+  const [selectedPokemon, setSelectedPokemon] = useState(null)
   const [filters, setFilters] = useState({ search: '', generation: '', type: '' })
 
   useEffect(() => {
@@ -108,11 +109,16 @@ export default function App() {
     .sort((first, second) => Number(first) - Number(second))
   const types = [...new Set(pokemon?.flatMap((entry) => entry.types))]
     .sort((first, second) => first.localeCompare(second, 'pt-BR'))
+  const selectedIndex = visiblePokemon?.findIndex((entry) => entry.number === selectedPokemon?.number) ?? -1
+  const previousPokemon = visiblePokemon?.[selectedIndex - 1]
+  const nextPokemon = selectedIndex >= 0 ? visiblePokemon[selectedIndex + 1] : undefined
 
   return (
     <main className="pokedex">
-      <h1>Pokédex</h1>
-      <p>Um catálogo de Pokémon.</p>
+      <header className="pokedex-header">
+        <h1>Pokédex</h1>
+        <p>Explore Pokémon por nome, região ou tipo.</p>
+      </header>
       {hasError ? (
         <div>
           <p role="alert">Não foi possível carregar os Pokémon.</p>
@@ -128,15 +134,59 @@ export default function App() {
             generations={generations}
             types={types}
           />
-          {visiblePokemon.length === 0 ? (
-            <p role="status">Nenhum Pokémon encontrado.</p>
-          ) : (
-            <div className="pokemon-grid">
-              {visiblePokemon.map((entry) => (
-                <PokemonCard key={entry.number} {...entry} />
-              ))}
-            </div>
-          )}
+          <div className="pokemon-layout">
+            <aside className="pokemon-details" aria-label="Pokémon selecionado" aria-live="polite">
+              {selectedPokemon ? (
+                <>
+                  <div className="pokemon-details-navigation">
+                    <button
+                      type="button"
+                      aria-label="Pokémon anterior"
+                      disabled={!previousPokemon}
+                      onClick={() => setSelectedPokemon(previousPokemon)}
+                    >
+                      <span aria-hidden="true">‹</span>
+                    </button>
+                    <img
+                      className="pokemon-details-image"
+                      src={selectedPokemon.imageUrl}
+                      alt=""
+                      width="240"
+                      height="240"
+                    />
+                    <button
+                      type="button"
+                      aria-label="Próximo Pokémon"
+                      disabled={!nextPokemon}
+                      onClick={() => setSelectedPokemon(nextPokemon)}
+                    >
+                      <span aria-hidden="true">›</span>
+                    </button>
+                  </div>
+                  <h2>{selectedPokemon.name}</h2>
+                </>
+              ) : (
+                <p>Selecione um Pokémon para exibi-lo aqui.</p>
+              )}
+            </aside>
+            <section className="pokemon-results" aria-label="Catálogo">
+              <p className="pokemon-results-count">{visiblePokemon.length} Pokémon</p>
+              {visiblePokemon.length === 0 ? (
+                <p role="status">Nenhum Pokémon encontrado.</p>
+              ) : (
+                <div className="pokemon-grid">
+                  {visiblePokemon.map((entry) => (
+                    <PokemonCard
+                      key={entry.number}
+                      {...entry}
+                      selected={selectedPokemon?.number === entry.number}
+                      onSelect={() => setSelectedPokemon(entry)}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
         </>
       )}
     </main>

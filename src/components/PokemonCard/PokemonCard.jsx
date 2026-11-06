@@ -1,6 +1,6 @@
 import './PokemonCard.css'
 
-export default function PokemonCard({ number, name, types, imageUrl }) {
+export default function PokemonCard({ number, name, types, imageUrl, onSelect, selected }) {
   return (
     <article className="pokemon-card">
       <span className="pokemon-number">#{number}</span>
@@ -19,6 +19,15 @@ export default function PokemonCard({ number, name, types, imageUrl }) {
           <li key={type}>{type}</li>
         ))}
       </ul>
+      {onSelect && (
+        <button
+          className="pokemon-card-select"
+          type="button"
+          aria-label={`Ver ${name}`}
+          aria-pressed={selected}
+          onClick={onSelect}
+        />
+      )}
     </article>
   )
 }

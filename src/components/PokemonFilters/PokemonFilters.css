@@ -1,21 +1,46 @@
 .pokemon-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
   margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--surface);
 }
 
 .pokemon-filters label {
   display: grid;
   gap: 0.375rem;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.pokemon-filters label:first-child {
+  grid-column: 1 / -1;
 }
 
 .pokemon-filters input,
 .pokemon-filters select {
   padding: 0.625rem 0.75rem;
-  border: 1px solid #64748b;
+  width: 100%;
+  min-height: 2.75rem;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
-  background: #1e293b;
-  color: inherit;
+  background: #10131e;
+  color: #f1f5f9;
   font: inherit;
+}
+
+@media (min-width: 42rem) {
+  .pokemon-filters {
+    grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  }
+
+  .pokemon-filters label:first-child {
+    grid-column: auto;
+  }
 }
