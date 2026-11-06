@@ -1,0 +1,21 @@
+.pokemon-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.pokemon-filters label {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.pokemon-filters input,
+.pokemon-filters select {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #64748b;
+  border-radius: 0.5rem;
+  background: #1e293b;
+  color: inherit;
+  font: inherit;
+}

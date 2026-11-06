@@ -14,6 +14,12 @@
   color: #cbd5e1;
 }
 
+.pokemon-icon {
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
 .pokemon-types {
   display: flex;
   flex-wrap: wrap;
